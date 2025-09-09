@@ -1,0 +1,25 @@
+[build]
+  base = "DuanHpt9t9/"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_ENV = "production"
+  DATABASE_URL = "file:./prisma/dev.db"
+  BOTPRESS_URL = "https://botpress-duanhpt9t9.railway.app"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "DuanHpt9t9/.netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,38 @@
+{
+  "name": "duanhpt9t9-botpress",
+  "services": {
+    "duanhpt9t9": {
+      "source": "./DuanHpt9t9",
+      "build": {
+        "dockerfile": "Dockerfile"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "DATABASE_URL": "file:./prisma/dev.db",
+        "BOTPRESS_URL": "${{botpress.RAILWAY_PRIVATE_DOMAIN}}:3000"
+      },
+      "domains": ["duanhpt9t9.railway.app"]
+    },
+    "botpress": {
+      "source": "./BotpressV12", 
+      "build": {
+        "dockerfile": "Dockerfile"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "BP_HOST": "0.0.0.0",
+        "PORT": "3000",
+        "DATABASE_URL": "${{Postgres.DATABASE_URL}}"
+      },
+      "domains": ["botpress.railway.app"]
+    },
+    "postgres": {
+      "image": "postgres:13-alpine",
+      "variables": {
+        "POSTGRES_DB": "botpress",
+        "POSTGRES_USER": "botpress", 
+        "POSTGRES_PASSWORD": "${{POSTGRES_PASSWORD}}"
+      }
+    }
+  }
+}

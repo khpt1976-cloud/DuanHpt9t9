@@ -1,0 +1,86 @@
+# Production Docker Compose with public access
+# Use with ngrok or similar tunneling service
+
+services:
+  duan_hpt:
+    build:
+      context: ./DuanHpt9t9
+      dockerfile: Dockerfile
+    container_name: duan_hpt_prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./prisma/dev.db
+      - BOTPRESS_URL=http://localhost:3001
+    volumes:
+      - ./DuanHpt9t9/prisma:/app/prisma
+      - ./DuanHpt9t9/reports:/app/reports
+      - ./DuanHpt9t9/public/templates:/app/public/templates
+    depends_on:
+      - botpress
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  botpress:
+    build:
+      context: ./BotpressV12
+      dockerfile: Dockerfile
+    container_name: botpress_prod
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - BP_HOST=0.0.0.0
+      - PORT=3000
+      - DATABASE_URL=postgres://botpress:botpress@postgres:5432/botpress
+    volumes:
+      - botpress_data:/app/data
+      - ./BotpressV12/data:/app/data
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres_prod
+    environment:
+      - POSTGRES_DB=botpress
+      - POSTGRES_USER=botpress
+      - POSTGRES_PASSWORD=botpress
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # Ngrok service for public access
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok_tunnel
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./deploy-config/ngrok.yml:/etc/ngrok.yml
+    ports:
+      - "4040:4040"  # Ngrok web interface
+    depends_on:
+      - duan_hpt
+      - botpress
+    networks:
+      - app_network
+
+volumes:
+  botpress_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge

@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: duanhpt9t9
+    env: docker
+    dockerfilePath: ./DuanHpt9t9/Dockerfile
+    dockerContext: ./DuanHpt9t9
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:./prisma/dev.db
+      - key: BOTPRESS_URL
+        value: https://botpress-duanhpt9t9.onrender.com
+    buildCommand: ""
+    startCommand: ""
+
+  - type: web
+    name: botpress-duanhpt9t9
+    env: docker
+    dockerfilePath: ./BotpressV12/Dockerfile
+    dockerContext: ./BotpressV12
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BP_HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: botpress-db
+          property: connectionString
+    buildCommand: ""
+    startCommand: ""
+
+databases:
+  - name: botpress-db
+    databaseName: botpress
+    user: botpress
+    plan: free

@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "name": "duanhpt9t9",
+  "builds": [
+    {
+      "src": "DuanHpt9t9/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "DuanHpt9t9/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "DATABASE_URL": "file:./prisma/dev.db",
+    "BOTPRESS_URL": "https://botpress-duanhpt9t9.railway.app"
+  },
+  "functions": {
+    "DuanHpt9t9/app/api/**/*.ts": {
+      "runtime": "@vercel/node"
+    }
+  }
+}
